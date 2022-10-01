@@ -2,6 +2,7 @@ import marko
 import os
 import sys
 import sqlite3
+from jinja2 import Environment, FileSystemLoader
 
 class Converter:
     def __init__(self,path):
@@ -11,6 +12,9 @@ class Converter:
 
     def start(self):
         self.list_files()
+
+    def close(self):
+        self.con.close()
 
     def list_files(self):
         for x in os.listdir(self.path):
@@ -26,15 +30,21 @@ class Converter:
     
     def aligned(self, detail, file_name):
         print("checking if file", file_name, " with details: ", detail, " is aligned\n")
-        rows = self.cur.execute("select last_modification from files where name = :file_name", {"file_name": str(file_name)})
-        if self.cur.fetchone() is None:
+        self.cur.execute("select last_modification from files where name = :file_name", {"file_name": str(file_name)})
+        rows = self.cur.fetchone()
+        if rows is None:
             print("couldnt find this file name in the db\n")
             self.insert(file_name, detail)
-            #md_to_html(file)
+            self.md_to_html(self.path,file_name)
         else:
             print("i could find this file name in the db\n")
-            for r in rows:
-                print(r)
+            print("db timestamp = ",rows[0])
+            db_timestamp = rows[0]
+            if int(detail.st_mtime) != db_timestamp:
+                self.update(file_name, detail)
+                self.md_to_html(self.path,file_name)
+            else:
+                self.md_to_html(self.path,file_name)
 
     def insert(self, file_name, detail):
         print("inserting values ", file_name, " with modification time ", int(detail.st_mtime))
@@ -42,10 +52,30 @@ class Converter:
         self.con.commit()
         print("finished inserting values ", file_name, " with modification time ", detail.st_mtime)
 
-    def md_to_html(file):
-        with open('markdown_files/text1.md', 'r') as file:
+    def update(self, file_name, detail):
+        print("updating values ", file_name, " with modification time ", int(detail.st_mtime))
+        self.cur.execute("update files set last_modification = ?",(int(detail.st_mtime)))
+        self.con.commit()
+        print("finished updating values ", file_name, " with modification time ", detail.st_mtime)
+
+    def md_to_html(self,directory,file):
+        path = os.path.join(directory, file)
+        file_name = file
+        with open(path, 'r') as file:
             data = file.read()
-        return render_template('index.html', data = marko.convert(data))
+        print(".md file: \n",data)
+        converted_data = marko.convert(data)
+        print("converted md file: \n",converted_data)
+        env = Environment(loader=FileSystemLoader('./templates'))
+        template = env.get_template('base.html')
+        html_out = template.render({"content":converted_data})
+        print("templated file with content inserted\n",html_out)
+        sep = '.'
+        base_file_name = file_name.split(sep, 1)[0]
+        file_name = base_file_name + ".html"
+        print("saving content to file: ",file_name)
+        with open('html/'+file_name, 'w') as file:
+            file.write(html_out)
 
 # Main part:
 n = len(sys.argv)
@@ -57,3 +87,4 @@ path = sys.argv[1]
 
 converter = Converter(path)
 converter.start()
+converter.close()
