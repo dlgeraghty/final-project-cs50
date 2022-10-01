@@ -53,7 +53,7 @@ class Converter:
 
     def update(self, file_name, detail):
         print("updating values ", file_name, " with modification time ", int(detail.st_mtime))
-        self.cur.execute("update files set last_modification = ?",(int(detail.st_mtime)))
+        self.cur.execute("update files set last_modification = ? where name=?",(int(detail.st_mtime), file_name))
         self.con.commit()
         print("finished updating values ", file_name, " with modification time ", detail.st_mtime)
 
