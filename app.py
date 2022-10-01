@@ -41,9 +41,8 @@ class Converter:
             print("db timestamp = ",rows[0])
             db_timestamp = rows[0]
             if int(detail.st_mtime) != db_timestamp:
+                print("the timestamps were different, updating")
                 self.update(file_name, detail)
-                self.md_to_html(self.path,file_name)
-            else:
                 self.md_to_html(self.path,file_name)
 
     def insert(self, file_name, detail):
