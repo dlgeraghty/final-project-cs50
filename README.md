@@ -3,11 +3,11 @@
 #### Description: 
 This project written in python is a simple tool that will convert markdown files into html, creating a nice website :).  
 
-**Motivation**
+**Motivation**   
 I have always wanted a middleground between writing html myself and a full cms like wordpress. I have used these two systems in the past but the first is not very good for scalability and the second one always presents the challenge of maintaining a wordpress instance and fighting with templates to get them to do what you want, it is very heavy duty and "easy" for my taste.   
 I then discovered some existing static site generators but unfortunately they didn't work very well for me, so I decided to write one that would just suit my needs and no more, that could be extended easily and customized.
 
-**Architecture**
+**Architecture**   
 This project in itself only consists of a python file, a html file and a db file, that is all you need.  
 Of course, there is more to it than just this:
 1. The python file app.py, contains the code for the application naturally and will be explained further in the document
@@ -15,6 +15,21 @@ Of course, there is more to it than just this:
 3. The template, currently located in templates/base.html, (although it can be parametrized easily) will be the html template in which the code will be inserted
 4. The markdown\_files directory contains the markdown files that the application will take as input
 5. The html directory contains the html files that result as output of the application, and will later be served with any file/web server
+
+**How it works**   
+The general idea is that given a directory with files, we will iterate over all of those and evaluate wether this file has changes from the last time the program was executed or not. In a positive case, we will convert the file to html and save the result   
+- The arguments: The project as per writing this document only receives one argument, that is, the path to the directory that contains the markdown files.
+- The Class: the program is one class that contains multiple methods, the class receives the argument passed in the previous step
+  - init: set some variables, the path, opens the sql connection and "empties" the navbar
+  - start: this function is called from outside the class, it only executes the list\_files() method
+  - close: this function is called from outside the class, it only closes the sqlite connection
+  - list\_files(): for each file in the markdown directory, it checks if it is a mardown file and executes the file\_details(x), _where x is the current file we are looking at in a certain iteration_
+  - file\_details(i): _where i is the specific file we are looking at_ this function extracts the details of the file using the _stat_ function, calls the generate\_nav(i) and the aligned(i) method
+  - aligned(details, file\_name): will trigger the database to see if the file already exists in the db. If it does not exist, then it is a new file and we need to insert something into the db, using the insert() funtion and generate the html using the md\_to\_html() funtion. If the file exists then there are two cases. Either the timestamp recorded in the db is the same as the current one of the file, in this case the file has not changed and we take no action. Otherwise, the file has changed so we execute the update() function and the md\_to\_html file
+  - insert(file\_name, detail): executes a query in the db to insert the file\_name and the associated timestamp
+  - update(file\_name, detail): executes a query in the db to update the timestamp for the file\_name
+  - md\_to\_html(directory, file): reads the file, converts it with Marko, uses templating with Jinja and saves the output
+  - generate\_nav(file): uses templating to generate a particularly formatted html tag and thus generate a working navbar
 
 **Libraries used**
 1. [Marko](https://youtu.be/VO1nb8HD-9U): this one helps me convert the files from .md to .html syntax 
