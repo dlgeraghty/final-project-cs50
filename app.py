@@ -2,13 +2,14 @@ import marko
 import os
 import sys
 import sqlite3
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 
 class Converter:
     def __init__(self,path):
         self.path = path
         self.con = sqlite3.connect("index.db")
         self.cur = self.con.cursor()
+        self.navbar = ""
 
     def start(self):
         self.list_files()
@@ -25,6 +26,7 @@ class Converter:
     def file_details(self,i):
         print("getting file details", i)
         details = os.stat(os.path.join(self.path, i))
+        self.generate_nav(i)
         self.aligned(details, i)
         print("end of getting file details \n", i)
     
@@ -67,7 +69,7 @@ class Converter:
         print("converted md file: \n",converted_data)
         env = Environment(loader=FileSystemLoader('./templates'))
         template = env.get_template('base.html')
-        html_out = template.render({"content":converted_data})
+        html_out = template.render({"content":converted_data, "navbar": self.navbar})
         print("templated file with content inserted\n",html_out)
         sep = '.'
         base_file_name = file_name.split(sep, 1)[0]
@@ -75,6 +77,17 @@ class Converter:
         print("saving content to file: ",file_name)
         with open('html/'+file_name, 'w') as file:
             file.write(html_out)
+
+    def generate_nav(self,file):
+        print("generating navbar for: ", file)
+        sep = '.'
+        base_file_name = file.split(sep, 1)[0]
+        file_name = base_file_name + ".html"
+        template = Template('<a class="nav-link fw-bold py-1 px-0" href="{{ file_name }}">{{ base_file_name }}</a>')
+        html_out = template.render({"file_name": file_name, "base_file_name": base_file_name})
+        print(html_out)
+        self.navbar += html_out
+
 
 # Main part:
 n = len(sys.argv)

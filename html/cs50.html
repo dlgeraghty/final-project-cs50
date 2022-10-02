@@ -15,14 +15,37 @@
 
     </head>
 
-    <body>
+<body class="d-flex h-100 text-center text-bg-dark">
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="mb-auto">
+    <div>
+      <h3 class="float-md-start mb-0">CS50 final project</h3>
+      <nav class="nav nav-masthead justify-content-center float-md-end">
+	      <!--        <a class="nav-link fw-bold py-1 px-0 " href="#">Home</a> -->
+	      <a class="nav-link fw-bold py-1 px-0" href="text1.html">text1</a><a class="nav-link fw-bold py-1 px-0" href="text2.html">text2</a><a class="nav-link fw-bold py-1 px-0" href="cs50.html">cs50</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="px-3">
 	    <h1>hello cs50</h1>
 <p>This is my final project!
 It consists of a very simple yet powerful static site generator!</p>
 <h2>What is a static site generator</h2>
-<p>a static site generator grabs files written is some <em>non-code</em> format and converts them to html files that can be served with a simple file-browser
-A statis site generator does <strong>not generate a backend</strong></p>
+<p>A static site generator grabs files written is some <em>non-code</em> format and converts them to html files that can be served with a simple file-browser<br />
+A static site generator does <strong>not generate a backend</strong><br />
+In this case, it grabs the input from a markdown file and spits out a .html file with a template to make it look good and with the content of the .md file<br />
+The templating part, is working with jinja2 and the markdown-&gt;html part is working with Marko, both are python libraries that I had to learn how to use<br />
+Actually they were pretty easy and turned out easy to use :)<br />
+although it took a lot of work to get it just like I wanted it<br />
+this is a live test with the menu working  :)</p>
  
-   </body>
+  </main>
+
+    <footer class="mt-auto text-white-50">
+    <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+  </footer>
+</div>
+</body>
 
 </html>
