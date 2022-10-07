@@ -5,9 +5,10 @@ import sqlite3
 from jinja2 import Environment, FileSystemLoader, Template
 
 class Converter:
-    def __init__(self,path, template):
+    def __init__(self,path, template, force):
         self.path = path
         self.template = template
+        self.force = force
         self.con = sqlite3.connect("index.db")
         self.cur = self.con.cursor()
         self.navbar = ""
@@ -35,6 +36,9 @@ class Converter:
         print("checking if file", file_name, " with details: ", detail, " is aligned\n")
         self.cur.execute("select last_modification from files where name = :file_name", {"file_name": str(file_name)})
         rows = self.cur.fetchone()
+        if self.force:
+            print("forcing...")
+            self.md_to_html(self.path, file_name)
         if rows is None:
             print("couldnt find this file name in the db\n")
             self.insert(file_name, detail)
@@ -92,16 +96,21 @@ class Converter:
 
 # Main part:
 n = len(sys.argv)
-if len(sys.argv) != 2 and len(sys.argv) != 3:
-    print("correct usage: python3 ./app.py path_of_dir_to_be_inspected path_to_the_template(optional, will use base.html by default)\n")
+if len(sys.argv) != 2 and len(sys.argv) != 3 and len(sys.argv) != 4:
+    print("correct usage: python3 ./app.py path_of_dir_to_be_inspected path_to_the_template(optional, will use base.html by default) force(optional)\n")
     sys.exit()
 
 path = sys.argv[1]
 template = "base.html"
-if len(sys.argv) == 3:
+if len(sys.argv) >= 3:
     template = sys.argv[2]
     print("template is:", template)
 
-converter = Converter(path, template)
+force=False
+if len(sys.argv) == 4:
+    force=True
+
+
+converter = Converter(path, template, force)
 converter.start()
 converter.close()
