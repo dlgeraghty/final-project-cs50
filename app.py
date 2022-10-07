@@ -5,8 +5,9 @@ import sqlite3
 from jinja2 import Environment, FileSystemLoader, Template
 
 class Converter:
-    def __init__(self,path):
+    def __init__(self,path, template):
         self.path = path
+        self.template = template
         self.con = sqlite3.connect("index.db")
         self.cur = self.con.cursor()
         self.navbar = ""
@@ -68,7 +69,7 @@ class Converter:
         converted_data = marko.convert(data)
         print("converted md file: \n",converted_data)
         env = Environment(loader=FileSystemLoader('./templates'))
-        template = env.get_template('base.html')
+        template = env.get_template(self.template)
         html_out = template.render({"content":converted_data, "navbar": self.navbar})
         print("templated file with content inserted\n",html_out)
         sep = '.'
@@ -91,12 +92,15 @@ class Converter:
 
 # Main part:
 n = len(sys.argv)
-if len(sys.argv) != 2:
-    print("correct usage: python3 ./app.py path_of_dir_to_be_inspected\n")
+if len(sys.argv) != 2 and len(sys.argv) != 3:
+    print("correct usage: python3 ./app.py [path_to_the_template(optional, will use base.html by default)] path_of_dir_to_be_inspected\n")
     sys.exit()
 
 path = sys.argv[1]
+template = "base.html"
+if len(sys.argv) == 3:
+    template = sys.argv[2]
 
-converter = Converter(path)
+converter = Converter(path, template)
 converter.start()
 converter.close()
