@@ -93,13 +93,14 @@ class Converter:
 # Main part:
 n = len(sys.argv)
 if len(sys.argv) != 2 and len(sys.argv) != 3:
-    print("correct usage: python3 ./app.py [path_to_the_template(optional, will use base.html by default)] path_of_dir_to_be_inspected\n")
+    print("correct usage: python3 ./app.py path_of_dir_to_be_inspected path_to_the_template(optional, will use base.html by default)\n")
     sys.exit()
 
 path = sys.argv[1]
 template = "base.html"
 if len(sys.argv) == 3:
     template = sys.argv[2]
+    print("template is:", template)
 
 converter = Converter(path, template)
 converter.start()
