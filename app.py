@@ -20,6 +20,11 @@ class Converter:
         self.con.close()
 
     def list_files(self):
+        # we need a preliminary run to generate the correct navbar
+        for x in os.listdir(self.path):
+            if x.endswith(".md"):
+                self.generate_nav(x)
+        # then we can generate the html files
         for x in os.listdir(self.path):
             if x.endswith(".md"):
                 print("evaluating file: ", x)
@@ -28,7 +33,6 @@ class Converter:
     def file_details(self,i):
         print("getting file details", i)
         details = os.stat(os.path.join(self.path, i))
-        self.generate_nav(i)
         self.aligned(details, i)
         print("end of getting file details \n", i)
     
