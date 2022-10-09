@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - udemy-courses
+    ignore-paths:
+      - 'html/images/*'
 
 jobs:
   build:
