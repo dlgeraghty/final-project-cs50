@@ -1,7 +1,8 @@
 name: compile project
 on:
   push:
-    - udemy-courses
+    branches:
+      - udemy-courses
 
 jobs:
   build:
