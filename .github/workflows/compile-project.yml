@@ -10,6 +10,9 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2 # checkout the repository content to github runner.
+        with:
+          persist-credentials: false
+          fetch-depth: 0
       - name: setup python
         uses: actions/setup-python@v2
         with:
@@ -18,3 +21,14 @@ jobs:
         run: python -m pip install --upgrade install flask marko
       - name: execute python script
         run: python app.py udemy_courses/ base-sidebar.html --force
+      - name: Commit files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -am "Add changes"
+      - name:
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: udemy-courses
+
